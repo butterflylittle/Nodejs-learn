@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+  </head>
+  <body>
+    <textarea name="" id="textarea" cols="60" rows="10"></textarea>
+    <input type="text" id="content" />
+    <button id="btn">发送</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      let textarea = document.querySelector("#textarea");
+      let content = document.querySelector("#content");
+      let btn = document.querySelector("#btn");
+
+      // 1- 通过http请求，告诉服务器我要使用ws协议了，因为ws协议是根据已有的http协议升级而成的
+      const socket = io("/");
+
+      socket.on("hello", (data) => {
+        console.log(data);
+
+        writeData(data);
+      });
+
+      socket.on("message", (data) => {
+        writeData(data);
+      });
+
+      socket.on("userUpdate", (data) => {
+        console.log(data);
+      });
+
+      btn.onclick = function () {
+        let d = moment(new Date()).format(" hh:mm a");
+        writeData("我说：" + content.value + d);
+        socket.emit("message", content.value);
+        content.value = "";
+        content.focus();
+      };
+
+      function writeData(data) {
+        textarea.innerHTML += data + "\r\n";
+      }
+    </script>
+  </body>
+</html>
