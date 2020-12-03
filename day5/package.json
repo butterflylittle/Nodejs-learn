@@ -1,0 +1,19 @@
+{
+  "name": "ajax-zuoye",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
+    "koa-router": "^9.4.0",
+    "koa-static-cache": "^5.1.4",
+    "mysql2": "^2.1.0"
+  }
+}
