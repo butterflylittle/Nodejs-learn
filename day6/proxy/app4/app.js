@@ -117,6 +117,7 @@ router.post(
     //       { expiresIn: "2h" }
     //     )
     // );
+    // ctx.set("Authorization",'Bearer ' + token);
     ctx.set("Authorization", token);
     ctx.body = {
       id: rs.id,
@@ -127,7 +128,8 @@ router.post(
 
 router.get("/getPhotos", async (ctx) => {
   let [rs] = await db.query("select * from `photodatas` where `user_id`=?", [
-    ctx._user.id,
+    // ctx._user.id,
+    ctx.state.user.id,
   ]);
 
   rs = rs.map((r) => ({
@@ -149,7 +151,7 @@ router.post("/upload", upload(), async (ctx) => {
 
   let rs = await db.query(
     "insert into `photodatas` (`photoname`, `user_id`) values (?, ?)",
-    [filename, ctx._user.id]
+    [filename, ctx.state.user.id]
   );
   // console.log(rs);
 

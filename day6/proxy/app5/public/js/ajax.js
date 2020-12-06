@@ -33,7 +33,10 @@ function ajax(options) {
   // 设置ajax请求参数
   xhr.open(options.method, options.url, true);
 
-  xhr.setRequestHeader("authorization", localStorage.getItem("authorization"));
+  xhr.setRequestHeader(
+    "authorization",
+    "Bearer " + localStorage.getItem("authorization")
+  );
 
   // 通过body发送的数据是有N多种格式的
   // 我们可以直接使用js内置的一个对象来完成
