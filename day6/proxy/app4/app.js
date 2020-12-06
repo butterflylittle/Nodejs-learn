@@ -21,6 +21,17 @@ let db;
 
 const app = new Koa();
 
+let secret = "qianshu";
+
+app.use(
+  koaJwt({
+    secret,
+  }),
+  unless({
+    path: [/^\/public/, /^\/login/],
+  })
+);
+
 app.use(
   KoaStaticCache("./public", {
     prefix: "/public",
@@ -35,19 +46,19 @@ router.get("/", async (ctx) => {
   ctx.body = "qianshu";
 });
 
-app.use(function (ctx, next) {
-  return next().catch((err) => {
-    if (401 == err.status) {
-      ctx.status = 401;
-      ctx.body = {
-        code: 401,
-        msg: err.message,
-      };
-    } else {
-      throw err;
-    }
-  });
-});
+// app.use(function (ctx, next) {
+//   return next().catch((err) => {
+//     if (401 == err.status) {
+//       ctx.status = 401;
+//       ctx.body = {
+//         code: 401,
+//         msg: err.message,
+//       };
+//     } else {
+//       throw err;
+//     }
+//   });
+// });
 
 router.post(
   "/login",
@@ -86,19 +97,27 @@ router.post(
         message: "密码错误",
       });
     }
-
-    ctx.set(
-      "Authorization",
-      "Bearer" +
-        jwt.sign(
-          {
-            id: rs.id,
-            username: rs.username,
-          },
-          "qianshu",
-          { expiresIn: "2h" }
-        )
+    //token验证
+    let token = jwt.sign(
+      {
+        id: rs.id,
+        username: rs.username,
+      },
+      secret
     );
+    // ctx.set(
+    //   "Authorization",
+    //   "Bearer" +
+    //     jwt.sign(
+    //       {
+    //         id: rs.id,
+    //         username: rs.username,
+    //       },
+    //       "qianshu",
+    //       { expiresIn: "2h" }
+    //     )
+    // );
+    ctx.set("Authorization", token);
     ctx.body = {
       id: rs.id,
       username: rs.username,
@@ -121,12 +140,12 @@ router.get("/getPhotos", async (ctx) => {
 
 // router.post("/upload", verify(), upload(), async (ctx) => {
 router.post("/upload", upload(), async (ctx) => {
-  console.log(ctx._user);
+  // console.log(ctx._user);
 
   let dot = ctx.request.files.file.path.lastIndexOf("\\");
   let filename = ctx.request.files.file.path.substring(dot + 1);
 
-  console.log(filename);
+  // console.log(filename);
 
   let rs = await db.query(
     "insert into `photodatas` (`photoname`, `user_id`) values (?, ?)",
@@ -138,14 +157,6 @@ router.post("/upload", upload(), async (ctx) => {
     url: "/public/upload/" + filename,
   };
 });
-
-app.use(
-  koaJwt({
-    secret: "qianshu",
-  }).unless({
-    path: [/^\/public/, /^\/login/],
-  })
-);
 
 app.use(router.routes());
 
